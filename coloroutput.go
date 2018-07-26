@@ -1,13 +1,8 @@
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-package cli
+package clog
 
 import (
     "fmt"
     "log"
-    "strings"
 
     "github.com/daviddengcn/go-colortext"
 )
@@ -74,103 +69,99 @@ var Prefix = struct {
 var PrintToLogger = false
 var PrintPriority = LOG_DEBUG
 
-func PrintLog(priority LogPriority, lines string) {
+func PrintLog(priority LogPriority, ft string, args ...interface{}) {
     if PrintPriority < priority {
         return
     }
 
     switch priority {
     case LOG_EMERG:
-        PrintEmerg(lines)
+        PrintEmerg(ft, args...)
     case LOG_ALERT:
-        PrintAlert(lines)
+        PrintAlert(ft, args...)
     case LOG_CRIT:
-        PrintCrit(lines)
+        PrintCrit(ft, args...)
     case LOG_ERR:
-        PrintError(lines)
+        PrintError(ft, args...)
     case LOG_WARNING:
-        PrintWarn(lines)
+        PrintWarn(ft, args...)
     case LOG_NOTICE:
-        PrintNotice(lines)
+        PrintNotice(ft, args...)
     case LOG_INFO:
-        PrintInfo(lines)
+        PrintInfo(ft, args...)
     default:
-        PrintDebug(lines)
+        PrintDebug(ft, args...)
     }
 }
 
-func PrintEmerg(lines string) {
+func PrintEmerg(ft string, args ...interface{}) {
     if PrintPriority < LOG_EMERG {
         return
     }
-    Println(Color.Emerg, Prefix.Emerg, lines, false)
+    Println(Color.Emerg, Prefix.Emerg, ft, args...)
 }
 
-func PrintAlert(lines string) {
+func PrintAlert(ft string, args ...interface{}) {
     if PrintPriority < LOG_ALERT {
         return
     }
-    Println(Color.Alert, Prefix.Alert, lines, false)
+    Println(Color.Alert, Prefix.Alert, ft, args...)
 }
 
-func PrintCrit(lines string) {
+func PrintCrit(ft string, args ...interface{}) {
     if PrintPriority < LOG_CRIT {
         return
     }
-    Println(Color.Crit, Prefix.Crit, lines, false)
+    Println(Color.Crit, Prefix.Crit, ft, args...)
 }
 
-func PrintError(lines string) {
+func PrintError(ft string, args ...interface{}) {
     if PrintPriority < LOG_ERR {
         return
     }
-    Println(Color.Error, Prefix.Error, lines, true)
+    Println(Color.Error, Prefix.Error, ft, args...)
 }
 
-func PrintWarn(lines string) {
+func PrintWarn(ft string, args ...interface{}) {
     if PrintPriority < LOG_WARNING {
         return
     }
-    Println(Color.Warn, Prefix.Warn, lines, true)
+    Println(Color.Warn, Prefix.Warn, ft, args...)
 }
 
-func PrintNotice(lines string) {
+func PrintNotice(ft string, args ...interface{}) {
     if PrintPriority < LOG_NOTICE {
         return
     }
-    Println(Color.Notice, Prefix.Notice, lines, true)
+    Println(Color.Notice, Prefix.Notice, ft, args...)
 }
 
-func PrintInfo(lines string) {
+func PrintInfo(ft string, args ...interface{}) {
     if PrintPriority < LOG_INFO {
         return
     }
-    Println(Color.Info, Prefix.Info, lines, true)
+    Println(Color.Info, Prefix.Info, ft, args...)
 }
 
-func PrintDebug(lines string) {
+func PrintDebug(ft string, args ...interface{}) {
     if PrintPriority < LOG_DEBUG {
         return
     }
-    Println(Color.Debug, Prefix.Debug, lines, true)
+    Println(Color.Debug, Prefix.Debug, ft, args...)
 }
 
-func PrintOutput(lines string) {
-    Println(Color.Output, Prefix.Output, lines, true)
+func PrintOutput(ft string, args ...interface{}) {
+    Println(Color.Output, Prefix.Output, ft, args...)
 }
 
-func Println(color ct.Color, prefix string, lines string, onlyColorPrefix bool) {
+func Println(color ct.Color, prefix string, ft string, args ...interface{}) {
     if PrintToLogger {
-        log.Printf("%s%s", prefix, lines)
+        log.Println(prefix + fmt.Sprintf(ft, args...))
     } else {
-        for _, line := range strings.Split(lines, "\n") {
-            ct.Foreground(color, false)
-            fmt.Print(prefix)
-            if onlyColorPrefix {
-                ct.ResetColor()
-            }
-            fmt.Println(line)
-            ct.ResetColor()
-        }
+        ct.Foreground(color, false)
+        fmt.Print(prefix)
+        ct.ResetColor()
+        fmt.Printf(ft, args...)
+        fmt.Println()
     }
 }
